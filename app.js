@@ -2,4 +2,9 @@ var http = require('http');
 var server = require('./server');
 var router = require('./router');
 
-server.start(http, router.route, handle);
+router.get('start', function(r){
+    content = 'hello world';
+    r.write('hello world');
+});
+
+server.start(http, router);
