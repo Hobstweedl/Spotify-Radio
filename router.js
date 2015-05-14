@@ -3,28 +3,38 @@ var router = module.exports = {
     //  Store our caught routes
     handlers : [],
 
+    data : '',
+
     send : function(content){
-        console.log('The following is the content to send');
-        console.log(content);
+        this.data = content;
     },
 
     route : function(path, response){
         var length = this.handlers.length;
         var handle;
+        var index = 0;
 
-        //  Loop through each item in the handler and find the first match
-        for( var i = 0; i < length; i++ ){
-            handle = this.handlers[i];
-            console.log('Found match?');
-            console.log(handle.path + ' <--- handler - path ---> ' + path + '\n');
+        while( index < length){
+            handle = this.handlers[ index ];
+
             if(handle.path == path){
-                console.log('Found match');
-                console.log( handle.cb.toString() );
                 response.writeHead(200, {"Content-Type" : "text/plain"} );
-                handle.cb;
-            }
-        }
 
+                if( typeof(handle.cb) === "function" ){
+                    //  Function
+                    handle.cb();
+                } else{
+                    //  Not a function, determine type and execute
+                }
+                index = length;
+                break;
+            }
+            index++;
+        }
+        
+        response.write( this.data );
+        this.data = '';
+        console.log('Closing response');
         response.end();
     },
 
@@ -34,8 +44,5 @@ var router = module.exports = {
             path : url,
             cb : fn
         });
-
-        console.log('\n');
-        console.log('The route ' + url + ' was stored\n');
     }
 }
