@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Spotify FM</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://cdn.binaryjs.com/0/binary.js"></script>
+  </head>
+
+<body>
+
+  <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col-sm-12">
+        <h1>Welcome</h1>
+        <div id ="player"></div>
+      </div>
+    </div>
+
+  </div>
+
+ <script>
+    // Connect to Binary.js server
+    var client = new BinaryClient('ws://localhost:9000');
+
+    // Received new stream from server!
+    client.on('stream', function(stream, meta){    
+      // Buffer for parts
+      console.log('stream event called');
+      var parts = [];
+      // Got new data
+      stream.on('data', function(data){
+        parts.push(data);
+      });
+      stream.on('end', function(){
+        console.log(stream);
+        console.log(meta);
+        // Display new data in browser!
+        var music = document.createElement("audio");
+        var player = document.getElementById('player');
+        music.src=(window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+        music.controls="controls";
+        music.preload="";        
+        player.appendChild(music);    
+      });
+    });
+  </script>
+
+</body>
+</html>
