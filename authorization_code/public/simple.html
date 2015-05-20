@@ -38,44 +38,12 @@
     var play = document.getElementById('pbtn');
     var stop = document.getElementById('sbtn');
 
-    /*function appendBuffer(buffer1, buffer2) {
-        var numberOfChannels = Math.min( buffer1.numberOfChannels, buffer2.numberOfChannels );
-        var tmp = audioCtx.createBuffer( numberOfChannels, (buffer1.length + buffer2.length), buffer1.sampleRate );
-        for (var i=0; i<numberOfChannels; i++) {
-          var channel = tmp.getChannelData(i);
-          channel.set( buffer1.getChannelData(i), 0);
-          channel.set( buffer2.getChannelData(i), buffer1.length);
-        }
-        return tmp;
-      }
-  },
-      */
+    function appendBuffer(buffer1, buffer2) {
+      var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+      tmp.set(new Uint8Array(buffer1), 0);
+      tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
 
-    function mix(buffers) {
-      var maxChannels = 2;
-      var maxDuration = 0;
-      var outChannelData;
-      for (var i = 0; i < buffers.length; i++) {
-        if (buffers[i].numberOfChannels > maxChannels) {
-          maxChannels = buffers[i].numberOfChannels;
-        }
-        maxDuration += buffers[i].duration;
-      }
-
-
-      var out = audioCtx.createBuffer(maxChannels,
-                                     audioCtx.sampleRate * maxDuration,
-                                     audioCtx.sampleRate);
-
-      for (var j = 0; j < buffers.length; j++) {
-        for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
-
-          //outChannelData = mixed.getChannelData(srcChannel);
-          var bufferChannelData = buffers[i].getChanneData(srcChannel);
-          outchannelData[i] += bufferChannelData[i];
-        }
-      }
-      return out;
+      return tmp.buffer;
     }
 
     play.onclick = function() {
@@ -90,6 +58,11 @@
     console.log('instanciated');
 
     });
+    /***************************************
+
+    This is how I will eventually preload and play before buffering
+
+    *****************************************/
 
 
     // Received new stream from server!
@@ -99,21 +72,20 @@
         stream.on('data', function(data){
 
             audioCtx.decodeAudioData(data, function(decodedData) {
+              // use the decoded data here
               console.log('decoding audio');
               parts.push(decodedData);
+              if( parts.length == 1){
+                source.buffer = parts[0];
+                source.start();
+              }
             });
         });
         stream.on('end', function(){
-
+            //var appended = appendBuffer(parts[0], parts[1]);
             //console.log(appended);
             console.log(parts[0]);
-            console.log(parts[1]);
-
-            var b = mix(parts);
-         
-            source.buffer = b;
-            source.start();
-            console.log('finished');
+            source.buffer = parts[0];
             
         });
 
