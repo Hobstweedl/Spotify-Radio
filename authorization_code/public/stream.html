@@ -5,9 +5,13 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/cupertino/jquery-ui.css">
+    <link rel="stylesheet" href="custom.css">
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
     <script src="http://cdn.binaryjs.com/0/binary.js"></script>
-    <script src="howler.js"></script>
+
   </head>
 
 <body>
@@ -17,127 +21,21 @@
     <div class="row">
       <div class="col-sm-12">
         <h1>Welcome</h1>
-        <button id="pbtn">Play</button>
-        <button id="sbtn">Stop</button>
+        
+       
+
         <div id ="player">
-            <audio id="musicplayer" controls></audio>
+            <audio id="musicplayer"></audio>
+            <div id="volume"></div><br>
+            <div id="progressbar"></div><br> 
+            <div id="playpause"></div>
         </div>
       </div>
     </div>
 
   </div>
 
-<script>
-
-    // Connect to Binary.js server
-    var audioCtx = new AudioContext();
-    var source = audioCtx.createBufferSource();
-    source.connect( audioCtx.destination);
-
-    var client = new BinaryClient('ws://localhost:9000');
-    var play = document.getElementById('pbtn');
-    var stop = document.getElementById('sbtn');
-
-    function mix(buffers) {
-      var maxChannels = 2;
-      var maxDuration = 0;
-      var outChannelData;
-      var out;
-      for (var i = 0; i < buffers.length; i++) {
-        if (buffers[i].numberOfChannels > maxChannels) {
-          maxChannels = buffers[i].numberOfChannels;
-        }
-        maxDuration += buffers[i].duration;
-
-      }
-      out = audioCtx.createBuffer(1, (audioCtx.sampleRate * maxDuration), audioCtx.sampleRate);
-
-      for (var j = 0; j < buffers.length; j++) {
-
-        var master = out.getChannelData(0);
-        var bufferChannelData = buffers[j].getChannelData(0);
-        out.set(bufferChannelData, out.length)
-        
-      }
-      console.log('----out-----');
-      console.log(out);
-      console.log('-------------')
-      return out;
-    }
-
-    play.onclick = function() {
-          source.start();
-        }
-
-    stop.onclick = function() {
-          source.stop();
-        }
-
-    client.on('open', function(stream, meta){
-    console.log('instanciated');
-
-    });
-
-
-    // Received new stream from server!
-    client.on('stream', function(stream, meta){    
-        var parts = [];
-
-        stream.on('data', function(data){
-
-            audioCtx.decodeAudioData(data, function(decodedData) {
-              console.log('decoding audio');
-              parts.push(decodedData);
-            });
-        });
-        stream.on('end', function(){
-            console.log(parts[0]);
-            var maxDuration = 0;
-            setTimeout(function () {
-
-
-
-              for (var i = 0; i < parts.length; i++) {
-                maxDuration += parts[i].duration;
-              }
-              //console.log('max duration - ' + maxDuration);
-              var out = audioCtx.createBuffer(1, (audioCtx.sampleRate * maxDuration), audioCtx.sampleRate);
-
-              for (var j = 0; j < parts.length; j++) {
-
-                var master = out.getChannelData(0);
-                console.log('master channel data is')
-                console.log(master);
-                var bufferChannelData = parts[j].getChannelData(0);
-                //out.set(bufferChannelData, 0);
-                
-              }
-              
-              console.log('----out-----');
-              console.log(out);
-              console.log('-------------')
-
-
-
-                   
-            }, 2000);
-            
-            //console.log(b);
-            
-
-            //source.buffer = b;
-            //source.start();
-            //console.log('finished');
-            
-        });
-
-
-        
-        console.log('ready to play');
-
-
-    });
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>

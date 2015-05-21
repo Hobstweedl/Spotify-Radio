@@ -1,0 +1,37 @@
+#player{
+position:relative;
+margin:50px auto;
+width:300px;
+text-align:center;
+font-family:Helvetica, Arial;
+}
+#playpause{
+  border:1px solid #eee;
+  cursor:pointer;
+  padding:12px 0;
+  color:#888;
+  font-size:12px;
+  border-radius:3px;
+}
+#playpause:hover{
+  border-color: #ccc;
+}
+#volume, #progressbar{
+  border:none; 
+  height:2px;
+}
+#volume{
+  background:hsla(180,75%,50%,1);
+}
+#progressbar{
+  background:#ccc;
+}
+.ui-slider-handle{
+  border-radius:50%;
+  width: 10px;
+  height:10px;
+  display: inline-block;
+  top: -5px !important;
+  margin-left:-5px !important;
+  background-color: red;
+}
