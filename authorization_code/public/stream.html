@@ -38,43 +38,30 @@
     var play = document.getElementById('pbtn');
     var stop = document.getElementById('sbtn');
 
-    /*function appendBuffer(buffer1, buffer2) {
-        var numberOfChannels = Math.min( buffer1.numberOfChannels, buffer2.numberOfChannels );
-        var tmp = audioCtx.createBuffer( numberOfChannels, (buffer1.length + buffer2.length), buffer1.sampleRate );
-        for (var i=0; i<numberOfChannels; i++) {
-          var channel = tmp.getChannelData(i);
-          channel.set( buffer1.getChannelData(i), 0);
-          channel.set( buffer2.getChannelData(i), buffer1.length);
-        }
-        return tmp;
-      }
-  },
-      */
-
     function mix(buffers) {
       var maxChannels = 2;
       var maxDuration = 0;
       var outChannelData;
+      var out;
       for (var i = 0; i < buffers.length; i++) {
         if (buffers[i].numberOfChannels > maxChannels) {
           maxChannels = buffers[i].numberOfChannels;
         }
         maxDuration += buffers[i].duration;
+
       }
-
-
-      var out = audioCtx.createBuffer(maxChannels,
-                                     audioCtx.sampleRate * maxDuration,
-                                     audioCtx.sampleRate);
+      out = audioCtx.createBuffer(1, (audioCtx.sampleRate * maxDuration), audioCtx.sampleRate);
 
       for (var j = 0; j < buffers.length; j++) {
-        for (var srcChannel = 0; srcChannel < buffers[j].numberOfChannels; srcChannel++) {
 
-          //outChannelData = mixed.getChannelData(srcChannel);
-          var bufferChannelData = buffers[i].getChanneData(srcChannel);
-          outchannelData[i] += bufferChannelData[i];
-        }
+        var master = out.getChannelData(0);
+        var bufferChannelData = buffers[j].getChannelData(0);
+        out.set(bufferChannelData, out.length)
+        
       }
+      console.log('----out-----');
+      console.log(out);
+      console.log('-------------')
       return out;
     }
 
@@ -104,16 +91,43 @@
             });
         });
         stream.on('end', function(){
-
-            //console.log(appended);
             console.log(parts[0]);
-            console.log(parts[1]);
+            var maxDuration = 0;
+            setTimeout(function () {
 
-            var b = mix(parts);
-         
-            source.buffer = b;
-            source.start();
-            console.log('finished');
+
+
+              for (var i = 0; i < parts.length; i++) {
+                maxDuration += parts[i].duration;
+              }
+              //console.log('max duration - ' + maxDuration);
+              var out = audioCtx.createBuffer(1, (audioCtx.sampleRate * maxDuration), audioCtx.sampleRate);
+
+              for (var j = 0; j < parts.length; j++) {
+
+                var master = out.getChannelData(0);
+                console.log('master channel data is')
+                console.log(master);
+                var bufferChannelData = parts[j].getChannelData(0);
+                //out.set(bufferChannelData, 0);
+                
+              }
+              
+              console.log('----out-----');
+              console.log(out);
+              console.log('-------------')
+
+
+
+                   
+            }, 2000);
+            
+            //console.log(b);
+            
+
+            //source.buffer = b;
+            //source.start();
+            //console.log('finished');
             
         });
 
