@@ -5,7 +5,6 @@
 
     var client = new BinaryClient('ws://localhost:9000');
 
-
     var $pp  = $('#playpause'),
     $vol = $('#volume'),
     $bar = $("#progressbar"),
@@ -30,6 +29,7 @@
     $bar.slider( {
       value : AUDIO.currentTime,
       slide : function(ev, ui) {
+        AUDIO.currentTime = AUDIO.duration/100*ui.value;
       }
     });
     
@@ -53,18 +53,37 @@
       $pp.text(getTime(AUDIO.currentTime) + '/' + totalTime);
     }
 
+    function emit(action, time) {
+      var data = {};
+      data["event"] = action;
+      data["time"] = time;
+      console.log( JSON.stringify(data) );
+      return client.send({}, JSON.stringify(data) );
+    }
+
     myAudio.addEventListener('timeupdate', progress, false);
 
     myAudio.addEventListener('loadedmetadata', function(e){
       var t = myAudio.duration / 60;
       var m = Math.floor(t) ;
-      var s = Math.ceil( (t % 1) * 60);
+      var s = Math.floor( (t % 1) * 60);
       totalTime = m + ':' + s;
-    })
-   
+    });
+
+    myAudio.addEventListener('canplay', function(e){
+      // Audio is ready, ask the server for the time to go to
+      emit('seek');
+    });
+
+    client.on('open', function(s,m){
+      console.log('connection established');
+      emit('startsong');
+    });
+    
+
 
     // Received new stream from server!
-    client.on('stream', function(stream, meta){    
+    client.on('stream', function(stream, meta){   
         var parts = [];
 
         stream.on('data', function(data){
@@ -79,9 +98,13 @@
 
           source.connect( audioCtx.destination );
           myAudio.volume = 0.75;
-
-          
-  
           myAudio.play();
         });
+
+        myAudio.addEventListener('ended', function(e){
+          console.log('song has finished, emit event');
+          emit('song_ended');
+        });
+
+
     });
