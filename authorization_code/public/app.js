@@ -73,6 +73,9 @@
 
     */
 
+    //emit('seek');
+    //  seek needs to happen when file has finished loading, but not in canplay event
+
     myAudio.addEventListener('timeupdate', progress, false);
 
     myAudio.addEventListener('loadedmetadata', function(e){
@@ -80,11 +83,11 @@
       var m = Math.floor(t) ;
       var s = Math.floor( (t % 1) * 60);
       totalTime = m + ':' + s;
+      emit('seek');
     });
 
-    myAudio.addEventListener('canplay', function(e){
-      // Audio is ready, ask the server for the time to go to
-      emit('seek');
+    myAudio.addEventListener('canplaythrough', function(e){
+      // Audio is ready, play it (seek needs to happen elsewhere);
       myAudio.play();
     });
 
@@ -108,25 +111,23 @@
 
     // Received new stream from server!
     client.on('stream', function(stream, meta){  
-         var parts = [];
+
+        var parts = [];
 
         if(meta == 'seek'){
           console.log('I am returning my seektime');
           emit('seekReturn', myAudio.currentTime);
         }
 
-
-
         stream.on('data', function(data){
 
-          if(meta == 'playsong'){
-            console.log('play song');
-            console.log(data);
+          if(meta == 'setseektime'){
+            myAudio.currentTime = data;
+            
           } else{
             console.log('loading data');
             parts.push(data);
           }
-          
         });
 
         stream.on('end', function(){
