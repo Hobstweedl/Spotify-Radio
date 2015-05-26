@@ -7,11 +7,16 @@
 
     var $pp  = $('#playpause'),
     $vol = $('#volume'),
-    $bar = $("#progressbar"),
     AUDIO= myAudio;
     var totalTime;
     var lastVolume = 0;
     AUDIO.volume = 0.75;
+
+    $('.seat-btn').on('click', function(){
+      var seat = $(this).attr('id');
+      console.log('clicked seat' + seat);
+      emit('seat', 0, seat );
+    });
 
     function getTime(t) {
       var m=~~(t/60), s=~~(t % 60);
@@ -19,8 +24,10 @@
     }
     
     function progress() {
-      $bar.slider('value', ~~(100/AUDIO.duration*AUDIO.currentTime));
-      $pp.text(getTime(AUDIO.currentTime) + '/' + totalTime);
+      var p = 100/AUDIO.duration*AUDIO.currentTime;
+      $('.progress-bar').css('width', p+'%');
+      $('.time').text(getTime(AUDIO.currentTime) );
+      //$pp.text(getTime(AUDIO.currentTime) + '/' + totalTime);
     }
 
     /*
@@ -33,10 +40,11 @@
 
     */
 
-    function emit(action, time) {
+    function emit(action, time, seat) {
       var data = {};
       data["event"] = action;
       data["time"] = time;
+      data["seat"] = seat;
       return client.send({}, JSON.stringify(data) );
     }
     
@@ -44,25 +52,36 @@
 
     $vol.slider( {
       value : AUDIO.volume*100,
+      animate: "fast",
       slide : function(ev, ui) {
         $vol.css({background:"hsla(180,"+ui.value+"%,50%,1)"});
         AUDIO.volume = ui.value/100; 
+
+        if(AUDIO.volume == 0){
+          $pp.css('background-color', 'red');
+          $pp.text('Unmute');
+        } else{
+          $pp.css('background-color', 'inherit');
+          $pp.text('Mute');
+        }
       } 
-    });
-     
-    $bar.slider( {
-      value : AUDIO.currentTime,
-      slide : function(ev, ui) {
-        AUDIO.currentTime = AUDIO.duration/100*ui.value;
-      }
     });
     
     $pp.click(function() {
       if( AUDIO.volume > 0){
         lastVolume = AUDIO.volume;
         AUDIO.volume = 0;
+        $pp.css('background-color', 'red');
+        $pp.text('Unmute');
       } else{
-        AUDIO.volume = lastVolume;
+        if(lastVolume == 0){
+          AUDIO.volume = 0.75;
+        } else{
+          AUDIO.volume = lastVolume;
+        }
+        
+        $pp.css('background-color', 'inherit');
+        $pp.text('Mute');
       }
       
     });
@@ -106,8 +125,6 @@
     Client and Stream events
 
     */
-    
-
 
     // Received new stream from server!
     client.on('stream', function(stream, meta){  
@@ -123,7 +140,6 @@
 
           if(meta == 'setseektime'){
             myAudio.currentTime = data;
-            
           } else{
             console.log('loading data');
             parts.push(data);
@@ -134,10 +150,8 @@
 
           myAudio.src=(window.URL || window.webkitURL).createObjectURL(new Blob(parts));
           myAudio.preload="";        
-
           source.connect( audioCtx.destination );
-          myAudio.volume = 0.0;
-
+          myAudio.volume = 0.75;
           stream.destroy();
           
         });

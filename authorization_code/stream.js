@@ -90,6 +90,10 @@ server.on('connection', function(client){
 
             break;
 
+            case 'seat':
+                console.log('seat - ' + metadata.seat + ' requested');
+            break;
+
     		default: 
     			//console.log('could not find action');
     		break;
