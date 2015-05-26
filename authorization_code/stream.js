@@ -17,16 +17,16 @@
 	-	UI
 			Need to make a pretty UI
 
-
-
-
+    May be best to switch to socket.io instead of binaryjs
 
 */
 
 var BinaryServer = require('binaryjs').BinaryServer;
 var fs = require('fs');
-var bunyan = require('bunyan');
-var log = bunyan.createLogger({name: "myapp"});
+var mm = require('musicmetadata');
+
+//var bunyan = require('bunyan');
+//var log = bunyan.createLogger({name: "myapp"});
 
 var tdwp = ['../music/tdwp/escape.mp3', '../music/tdwp/anatomy.mp3', '../music/tdwp/outnumbered.mp3']
 var currentSong = '';
@@ -34,6 +34,7 @@ var server = BinaryServer({ port: 9000, chunkSize: 100 });
 var clients = [];
 
 var songendcount = 0;
+var songmeta = {};
 /*
 
 	These three variables are for capturing the clients and times that respond with 
@@ -53,21 +54,37 @@ server.on('connection', function(client){
 
     	switch(metadata.event){
     		case 'startsong':
+                
     			console.log('New connection, launch song in progress');
     			console.log('current song is ' + currentsong);
     			var file = fs.createReadStream(currentsong);
+                
+                if( Object.getOwnPropertyNames(songmeta).length === 0 ){
+
+                    var parser = mm( file, function (err, metadata) {
+                      if (err) throw err;
+                      console.log(metadata);
+                      songmeta = metadata;
+                    });
+                }
+                
     			client.send(file, 'startsong');
     		break;
 
     		case 'songend':
-    		songendcount++;
+    		  songendcount++;
 
-    		if(songendcount == clients.length){
-    			console.log('all clients over, start new song');
-    			currentsong = tdwp.shift();
-    			var file = fs.createReadStream(currentsong);
-    			client.send(file, 'startsong');
-    		}
+        		if(songendcount == clients.length){
+        			console.log('all clients over, start new song');
+        			currentsong = tdwp.shift();
+                    var file = fs.createReadStream(currentsong);
+                    var parser = mm( file, function (err, metadata) {
+                      if (err) throw err;
+                      console.log(metadata);
+                    });
+        			client.send(file, 'startsong');
+                    songendcount = 0;
+        		}
     		break;
 
     		case 'seek':
