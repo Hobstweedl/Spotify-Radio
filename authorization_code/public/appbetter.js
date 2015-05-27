@@ -17,11 +17,10 @@ function progress() {
   var p = 100/myAudio.duration*myAudio.currentTime;
   $('.progress-bar').css('width', p+'%');
   $('.time').text(getTime(myAudio.currentTime) );
-  //$pp.text(getTime(AUDIO.currentTime) + '/' + totalTime);
 }
 
 $vol.slider( {
-  value : myAudio.volume*100,
+  value : myAudio.volume*75,
   animate: "fast",
   slide : function(ev, ui) {
     $vol.css({background:"hsla(180,"+ui.value+"%,50%,1)"});
@@ -60,18 +59,17 @@ $pp.click(function() {
 myAudio.addEventListener('timeupdate', progress, false);
 
 myAudio.addEventListener('loadedmetadata', function(e){
-  //emit('seek');
+  socket.emit('seek');
 });
 
 myAudio.addEventListener('canplaythrough', function(e){
-  // Audio is ready, play it (seek needs to happen elsewhere);
-  socket.emit('seek');
+  // Audio is ready, play it (seek needs to happen elsewhere);  
   myAudio.play();
 
 });
 
 myAudio.addEventListener('ended', function(e){
-  //emit('songend');
+  socket.emit('end');
 });
 
 socket.on('connect', function(){
@@ -91,10 +89,14 @@ socket.on('setSeekTime', function(data){
 });
 
 socket.on('song', function (data) {
+  console.log(data.meta);
+
+  $('span.artist').text(data.meta.albumartist[0]);
+  $('h2.song-title').text(data.meta.title);
+  $('.meta').text(data.meta.album + ' - ' + data.meta.year)
 
   myAudio.src=(window.URL || window.webkitURL).createObjectURL( new Blob( [data.buffer] ) );
   myAudio.preload="";
-  myAudio.volume = 0.75;
-  myAudio.play();
+  myAudio.volume = 0.0;
 
 });
