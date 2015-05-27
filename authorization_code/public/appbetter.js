@@ -85,6 +85,11 @@ socket.on('seektimes', function(){
   socket.emit('seekReturn', { time: myAudio.currentTime} );
 });
 
+socket.on('setSeekTime', function(data){
+  console.log('set time for' + data.seek);
+  myAudio.currentTime = data.seek;
+});
+
 socket.on('song', function (data) {
 
   myAudio.src=(window.URL || window.webkitURL).createObjectURL( new Blob( [data.buffer] ) );

@@ -58,7 +58,10 @@ io.on('connection', function(socket){
 
         if(seekReturnCount == connectedClients.length - 1){
             var time = getSeekAverage(seektimes);
+            io.sockets.connected[seeker].emit('setSeekTime', {seek: time} );
             console.log('average seek time - ' + time);
+            seekReturnCount = 0;
+            seektimes = [];
         }
     });
 
