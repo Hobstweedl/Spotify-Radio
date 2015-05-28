@@ -36,6 +36,12 @@ $vol.slider( {
   } 
 });
 
+/*
+
+  Browser events
+
+*/
+
 $pp.click(function() {
   if( myAudio.volume > 0){
     lastVolume = myAudio.volume;
@@ -55,6 +61,26 @@ $pp.click(function() {
   
 });
 
+$('#message').on('click', function(){
+  console.log( $('#m').val() );
+  socket.emit('chat message', $('#m').val());
+  $('#m').val('');
+});
+
+$('#signin').on('click', function(){
+  socket.emit('authentication', {username : $("#userid").val(), password: $('#passwordinput').val() } );
+});
+
+$('button.seat-btn').on('click', function(){
+  socket.emit('seat request');
+});
+
+/*
+
+  Event Listeners for audio element
+
+*/
+
 
 myAudio.addEventListener('timeupdate', progress, false);
 
@@ -72,31 +98,51 @@ myAudio.addEventListener('ended', function(e){
   socket.emit('end');
 });
 
+/*
+
+  Socket Events
+
+*/  
+
+//  This triggers when we connect to socket.io server This is the start
+
 socket.on('connect', function(){
-  console.log('we have connected');
-  socket.emit('connection');
+  socket.emit('authentication');
+});
+
+socket.on('not authenticated', function(){
+  $('#myModal').modal({ keyboad: false, backdrop: 'static' });
 });
 
 socket.on('seektimes', function(){
-  console.log('recieved a seek request');
-  console.log(myAudio.currentTime);
   socket.emit('seekReturn', { time: myAudio.currentTime} );
 });
 
 socket.on('setSeekTime', function(data){
-  console.log('set time for' + data.seek);
   myAudio.currentTime = data.seek;
 });
 
 socket.on('song', function (data) {
-  console.log(data.meta);
 
   $('span.artist').text(data.meta.albumartist[0]);
   $('h2.song-title').text(data.meta.title);
-  $('.meta').text(data.meta.album + ' - ' + data.meta.year)
+  $('.meta').text(data.meta.album + ' - ' + data.meta.year);
 
   myAudio.src=(window.URL || window.webkitURL).createObjectURL( new Blob( [data.buffer] ) );
   myAudio.preload="";
   myAudio.volume = 0.0;
 
 });
+
+
+socket.on('chat message', function(msg){
+  $('#messages').append($('<li>').text(msg.username + ': ' + msg.msg));
+});
+
+socket.on('authenticated', function(){
+
+  socket.emit('connection'); // need to launch that when credentials have been accepted
+  $('#myModal').modal('hide');
+
+});
+

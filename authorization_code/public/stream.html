@@ -10,6 +10,7 @@
     <link href='http://fonts.googleapis.com/css?family=Poiret+One|Comfortaa:400,700' rel='stylesheet' type='text/css'>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 
@@ -57,8 +58,6 @@
       </div>
     </div>
 
-    
-
   </div>
   -->
 
@@ -69,9 +68,9 @@
         <div id ="player">
             <audio id="musicplayer"></audio>
             <div class="metadata">
-              <h2 class="song-title">Gypsy Eyes</h2>
-              <div><strong>by</strong> <span class="artist">The Jimi Hendrix Experience</span></div>
-              <div class="meta">Woohoo</div>
+              <h2 class="song-title"></h2>
+              <div><strong>by</strong> <span class="artist"></span></div>
+              <div class="meta"></div>
               <h2 class="time"></h2>
             </div>
             <div id="volume"></div><br>
@@ -88,7 +87,106 @@
       </div>
     </div>
 
+    <!-- BEGIN SEATING ROW -->
+
+    <!--<div class="row">
+
+      <div class="col-sm-3">
+        <div class="seat text-center">
+          <img src="bartman.png" alt="..." class="img-circle" width="100">
+          <button class="seat-btn" id="seat1">Take A Seat</button>
+        </div>
+      </div>
+
+      <div class="col-sm-3">
+        <div class="seat text-center">
+          <img src="bartman.png" alt="..." class="img-circle" width="100">
+          <button class="seat-btn" id="seat2">Take A Seat</button>
+        </div>
+      </div>
+
+      <div class="col-sm-3">
+        <div class="seat text-center">
+          <img src="bartman.png" alt="..." class="img-circle" width="100">
+          <button class="seat-btn" id="seat3">Take A Seat</button>
+        </div>
+      </div>
+
+      <div class="col-sm-3">
+        <div class="seat text-center">
+          <img src="bartman.png" alt="..." class="img-circle" width="100">
+          <button class="seat-btn" id="seat4">Take A Seat</button>
+        </div>
+      </div>
+
+    </div>
+    -->
+    <!-- END SEATING ROW -->
+
+    <div class="row">
+  
+      <div  id="chatwindow">
+        <div class="form">
+            <input id="m" autocomplete="off" /><button type="button" class="btn btn-primary" id="message">Send</button>
+          </div>
+        <ul id="messages"></ul>
+        
+        
+      </div>
+    </div>
+
   </div>
+
+
+
+
+
+
+ <!-- Modal -->
+ <div class="modal fade bs-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-sm">
+     <div class="modal-content">
+         
+       <div class="modal-body">
+
+         
+        <div class="tab-pane fade active in">
+             <div class="form-horizontal">
+             <fieldset>
+             <!-- Sign In Form -->
+             <!-- Text input-->
+             <div class="control-group">
+               <label class="control-label" for="userid">Alias:</label>
+               <div class="controls">
+                 <input required="" id="userid" name="userid" type="text" class="form-control" placeholder="JoeSixpack" class="input-medium" required="">
+               </div>
+             </div>
+
+             <!-- Password input-->
+             <div class="control-group">
+               <label class="control-label" for="passwordinput">Password:</label>
+               <div class="controls">
+                 <input required="" id="passwordinput" name="passwordinput" class="form-control" type="password" placeholder="********" class="input-medium">
+               </div>
+             </div>
+
+            
+
+             <!-- Button -->
+             <div class="control-group">
+               <label class="control-label" for="signin"></label>
+               <div class="controls">
+                 <button id="signin" name="signin" class="btn btn-success" type="button" style="width: auto;">Sign In</button>
+               </div>
+             </div>
+             </fieldset>
+             </div>
+        </div>      
+       </div>
+      
+     </div>
+   </div>
+ </div>
 
 <script src="appbetter.js"></script>
 
