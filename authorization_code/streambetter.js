@@ -1,6 +1,25 @@
 var fs = require('fs');
-var io = require('socket.io')(3000);
 var mm = require('musicmetadata');
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var session = require("express-session");
+
+var sessionMiddleware = session({
+    secret: "W0tm8",
+});
+
+app.use(sessionMiddleware);
+app.use(express.static('public'));
+
+io.use(function(socket, next) {
+    sessionMiddleware(socket.request, socket.request.res, next);
+});
+
+app.get('/stream', function(req, res){
+  res.sendfile('public/stream.html');
+});
 
 var tdwp = ['../music/tdwp/escape.mp3', '../music/tdwp/anatomy.mp3', '../music/tdwp/outnumbered.mp3']
 
@@ -27,14 +46,29 @@ function getSeekAverage( avgs ){
     return avg;
 }
 
+function findUser(arr, sessionID){
+    var l = arr.length;
+    var found = false;
+
+    for( var i = 0; i < l; i++){
+        console.log(arr[i]);
+        if(arr[i] == sessionID){
+            found = true;
+        }
+    }
+    return found;
+}
+
 io.on('connection', function(socket){
 
     socket.on('connection', function(){
-        console.log(socket.id);
-        console.log(socket.conn);
-        //console.log('connected with client - ' + socket.id + ' and session - ' + socket.io.engine.id );
-        //connectedUsers.push(socket.io.engine.id)
+
+        var s = findUser(connectedUsers, socket.request.sessionID);
+        
+        connectedUsers.push(socket.request.sessionID);
         connectedClients.push(socket.id);
+        console.log('found? ' + s);
+        console.log(connectedUsers);
 
         var file = fs.createReadStream(currentSong);
         if( Object.getOwnPropertyNames(metadata).length === 0 ){
@@ -55,14 +89,12 @@ io.on('connection', function(socket){
     });
 
     socket.on('seekReturn', function(data){
-        console.log(data);
         seektimes.push(data.time);
         seekReturnCount++; 
 
         if(seekReturnCount == connectedClients.length - 1){
             var time = getSeekAverage(seektimes);
             io.sockets.connected[seeker].emit('setSeekTime', {seek: time} );
-            console.log('average seek time - ' + time);
             seekReturnCount = 0;
             seektimes = [];
         }
@@ -97,4 +129,9 @@ io.on('connection', function(socket){
 
     
 
+});
+
+
+http.listen(3000, function(){
+  console.log('listening on *:3000');
 });
