@@ -1,3 +1,24 @@
+/*
+	Have song ending and going to new song
+	Things to do
+
+	-	Clean up code
+			Modular, need functions, more separation
+
+	-	Create seats for people to add music
+			Person in seat can choose a song to push to the list
+			List has to play in the order that people are in seats
+			Also keep track of which seat position we are currently at
+
+	-	List of songs
+			Grab a music folder, go through list and store songs in database
+			Easy to access, search for the seated user
+
+	-	UI
+			Need to make a pretty UI
+
+*/
+
 var fs = require('fs');
 var mm = require('musicmetadata');
 var express = require('express');
@@ -8,16 +29,17 @@ var session = require("express-session");
 
 var tdwp = ['../music/tdwp/escape.mp3', '../music/tdwp/anatomy.mp3', '../music/tdwp/outnumbered.mp3']
 
-var connectedClients = [];
-var connectedUsers = [];
-var seatedUsers = [];
+//	Arrays for holding lists of users
+var connectedClients = []; //	client connected * can probably be removed in favor of connectedUsers
+var connectedUsers = [];	//	List of connected users by their session id. User info gets stored in object
+var seatedUsers = []; //	Usernames of users currently seated. Only they can push songs to the queue
 
-var seektimes = [];
+var seektimes = []; //	List of all seek times returned upon request
 var seekReturnCount = 0;
 var songEndCount = 0;
 
-var metadata = {};
-var currentSong;
+var metadata = {}; //	Current metadata for song playing
+var currentSong;	//	ID of the current song playing
 currentSong = tdwp.shift();
 
 var availableUsers= [
@@ -48,7 +70,7 @@ app.get('/stream', function(req, res){
 });
 
 
-/*	Socket Connectsion */
+/*	Socket Connection */
 
 
 io.on('connection', function(socket){
@@ -73,7 +95,6 @@ io.on('connection', function(socket){
     socket.on('authentication', function(data){
 
     	if(!data){
-	    	console.log('authenticating - ' + socket.request.sessionID);
 	    	var existing = checkForSession(socket.request.sessionID, connectedUsers);
 	    	if( existing === false){
 	    		socket.emit('not authenticated')
@@ -140,12 +161,13 @@ io.on('connection', function(socket){
     //	When a user wants to request a seat. Must check that it is a unique user
     //	ie same user with multiple tabs open cant be able to occupy seats
     socket.on('seat request', function(){
-        console.log('seat requested');
 
-        var s = findUser(seatedUsers, socket.request.sessionID);
+        var s = findUser(seatedUsers, socket.user);
         if(s == false){
-             seatedUsers.push(socket.request.sessionID);
+             seatedUsers.push(socket.user);
+             socket.seated = true;
         }
+        console.log(seatedUsers);
     });
 
     socket.on('chat message', function(msg){
@@ -155,8 +177,15 @@ io.on('connection', function(socket){
     
 
     socket.on('disconnect', function(){
-        var i = connectedClients.indexOf(socket.id);
-        connectedClients.splice(i, 1);
+    	console.log(connectedUsers);
+    	for(var i = 0; i< connectedUsers.length; i++){
+
+    		if(connectedUsers[i].user == socket.user ){
+    			connectedUsers.splice(i, 1);
+    		}
+    	}
+        var j = connectedClients.indexOf(socket.id);
+        connectedClients.splice(j, 1);
     });
 });
 
@@ -191,12 +220,12 @@ function getSeekAverage( avgs ){
     return avg;
 }
 
-function findUser(arr, sessionID){
+function findUser(arr, username){
     var l = arr.length;
     var found = false;
 
     for( var i = 0; i < l; i++){
-        if(arr[i] == sessionID){
+        if(arr[i] == username){
             found = true;
         }
     }

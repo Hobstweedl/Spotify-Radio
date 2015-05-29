@@ -146,3 +146,8 @@ socket.on('authenticated', function(){
 
 });
 
+socket.on('too many connections', function(){
+  console.log('respond with modal and explanation');
+  $('#nonomodal').modal({ keyboad: false, backdrop: 'static' });
+});
+
