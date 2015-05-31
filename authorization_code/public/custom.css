@@ -63,7 +63,7 @@ a.ui-slider-handle{ background-color: blue!important;}
 
 .seat h2{ font-family: arial, sans-serif;}
 
-#chatwindow{background-color:#fff; height: 400px; overflow:scroll;position: fixed; bottom: 0; width: 100%; }
+#chatwindow{background-color:#fff; height: 200px; overflow:scroll;position: fixed; bottom: 0; width: 100%; }
 .form{ font-family: arial; color: #000;}
 .form input { border: 0; padding: 0px; width: 90%; margin:0; border: 1px solid #666; padding: 4px; line-height: 16px; font-size: 18px; color: #000; }
 .form button { width: 9%; }
