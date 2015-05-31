@@ -18,13 +18,21 @@
 			Need to make a pretty UI
 
 */
-var MongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/play');
 
-MongoClient.connect('mongodb://localhost:27017/play', function(err, db) {
-  assert.equal(null, err);
-  console.log("Connected to Mongo Server");
-  db.close();
+var schema = mongoose.Schema({
+  "_id": mongoose.Schema.Types.ObjectId,
+  "title"     :String,
+  "artist"    :String,
+  "album"     :String,
+  "year"      :String,
+  "location"  :String
+});
+var tracks = mongoose.model('track', schema);
+var results = tracks.find(function(err,f){
+  if (err) return console.error(err);
+  console.log(f);
 });
 
 
