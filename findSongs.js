@@ -23,7 +23,7 @@ console.log('connected.');
 var track = mongoose.model('Track', trackSchema);
 
 
-var walkPath = '../music';
+var walkPath = 'music';
 
 var walk = function (dir, done) {
     fs.readdir(dir, function (error, list) {
@@ -52,7 +52,7 @@ var walk = function (dir, done) {
                     // do stuff to file here
                     var song = fs.createReadStream(file);
                     var parser = mm( song, function (err, m) {
-                        if (err) throw err;
+                        if (err) console.log('Error on : ' + file);
 
                         var insert = new track({
 	                        title: m.title,

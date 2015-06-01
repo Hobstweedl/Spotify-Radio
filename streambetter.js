@@ -19,23 +19,17 @@
 
 */
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/play');
+mongoose.connect('mongodb://localhost:27017/stream');
 
 var schema = mongoose.Schema({
   "_id": mongoose.Schema.Types.ObjectId,
   "title"     :String,
   "artist"    :String,
   "album"     :String,
-  "year"      :String,
   "location"  :String
 });
+
 var tracks = mongoose.model('track', schema);
-var results = tracks.find(function(err,f){
-  if (err) return console.error(err);
-  console.log(f);
-});
-
-
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -67,6 +61,30 @@ io.use(function(socket, next) {
 
 app.get('/stream', function(req, res){
   res.sendfile('public/stream.html');
+});
+
+app.get('/api', function(req, res){
+	return tracks.distinct('artist', function(e, data){
+		
+		if(!e){
+			return res.json(data);
+		} else{
+			return console.log(e);
+		}
+	});
+
+});
+
+app.get('/api/artists/:name', function(req, res){
+	return tracks.distinct('album',{artist : new RegExp([req.params.name]) }, function(e, data){
+		
+		if(!e){
+			return res.json(data);
+		} else{
+			return console.log(e);
+		}
+	});
+
 });
 
 
