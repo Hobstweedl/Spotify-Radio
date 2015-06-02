@@ -3,7 +3,7 @@ var mm = require('musicmetadata');
 var fs = require('fs');
 
 
-var tdwp = ['../music/tdwp/escape.mp3', '../music/tdwp/anatomy.mp3', '../music/tdwp/outnumbered.mp3']
+var tdwp = ['music/tdwp/escape.mp3', 'music/tdwp/anatomy.mp3', 'music/tdwp/outnumbered.mp3']
 //	Arrays for holding lists of users
 var connectedClients = []; //	client connected * can probably be removed in favor of connectedUsers
 var connectedUsers = [];	//	List of connected users by their session id. User info gets stored in object
@@ -119,8 +119,6 @@ exports = module.exports = function(io, availableUsers){
 	    socket.on('chat message', function(msg){
 	        io.emit('chat message', {msg: msg, username: socket.user });
 	    });
-
-	    
 
 	    socket.on('disconnect', function(){
 	    	for(var i = 0; i< connectedUsers.length; i++){

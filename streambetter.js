@@ -63,7 +63,7 @@ app.get('/stream', function(req, res){
   res.sendfile('public/stream.html');
 });
 
-app.get('/api', function(req, res){
+app.get('/api/artists', function(req, res){
 	return tracks.distinct('artist', function(e, data){
 		
 		if(!e){
@@ -75,8 +75,34 @@ app.get('/api', function(req, res){
 
 });
 
-app.get('/api/artists/:name', function(req, res){
-	return tracks.distinct('album',{artist : new RegExp([req.params.name]) }, function(e, data){
+app.get('/api/artists/:artist/albums', function(req, res){
+	return tracks.distinct('album',{artist : new RegExp([req.params.artist]) }, function(e, data){
+		
+		if(!e){
+			return res.json(data);
+		} else{
+			return console.log(e);
+		}
+	});
+
+});
+
+app.get('/api/artists/:artist/album/:album/tracks', function(req, res){
+	console.log( req.params);
+	return tracks.find({album : new RegExp('Hello Nasty') }, function(e, data){
+		
+		if(!e){
+			return res.json(data);
+		} else{
+			return console.log(e);
+		}
+	});
+
+});
+
+app.get('/api/track/:id', function(req, res){
+	console.log( req.params);
+	return tracks.findById(req.params.id, function(e, data){
 		
 		if(!e){
 			return res.json(data);
