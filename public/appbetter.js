@@ -8,6 +8,19 @@ var $pp  = $('#playpause'),
 $vol = $('#volume');
 var lastVolume = 0;
 
+function compilePanel(title, items){
+  var htmlList = '<div class="panel panel-info">' +
+          '<div class="panel-heading">' +
+              '<h3 class="panel-title"> ' + title +' </h3>' +
+              '<span class="pull-right clickable" data-effect="slideUp"><i class="fa fa-times"></i></span>' +
+          '</div>' +
+          '<div class="panel-body">' + items + 
+          '</div>'+
+        '</div>';
+
+  return htmlList;
+}
+
 function getTime(t) {
   var m=~~(t/60), s=~~(t % 60);
   return (m<10?"0"+m:m)+':'+(s<10?"0"+s:s);
@@ -45,13 +58,10 @@ $vol.slider( {
 $.getJSON( "/api/artists", function( data ) {
   var items = [];
   $.each( data, function( key, val ) {
-    items.push( '<a class="list-group-item" data-type="artist" data-id="' + val + '">' + val + "</a>" );
+    items.push( '<a class="list-group-item" data-type="artist" data-artist="' + val + '">' + val + "</a>" );
   });
 
-  $( "<div/>", {
-    "class": "list-group",
-    html: items.join( "" )
-  }).appendTo( ".left-window" );
+  $( items.join( "" ) ).appendTo( "#base" );
 });
 
 
@@ -90,21 +100,64 @@ $('button.seat-btn').on('click', function(){
 
 $(document).on('click', '.list-group-item', function(){
   var jdata = {};
-  var item = $(this).data('id');
+  var artist = $(this).data('artist');
+  var album = $(this).data('album');
+  var t = $(this).data('id')
   var type = $(this).data('type');
+  var trackSelected = false;
 
   switch(type) {
       case 'artist':
-        jdata.url = '/api/artist/' + item;
+        jdata.url = '/api/artist/' + artist;
+        jdata.type = 'album'
+        jdata.item = artist
       break;
+
+      case 'album':
+        jdata.url = '/api/artists/' + artist + '/album/' + album;
+        jdata.type = 'track'
+        jdata.item = album
+      break
+
+      case 'track':
+        trackSelected = true;
+      break;
+
   }
-  console.log(jdata);
-  $.getJSON( jdata.url, function( data ) {
-    var items = [];
-    $.each( data, function( key, val ) {
-      console.log(val);
+  $("#base-panel").hide();
+
+  if(trackSelected == false){
+    var compile;
+    $.getJSON( jdata.url, function( data ) {
+      var items = '';
+      $.each( data, function( key, val ) {
+
+        if(jdata.type== 'album'){
+          items += '<a class="list-group-item" data-type="' + jdata.type +
+           '" data-artist="' + artist + '" data-album="' + val + '">' + val + "</a>";
+        } else{
+          items += '<a class="list-group-item" data-type="' + jdata.type + '" data-id="' + val._id + '">' + val.title + "</a>";
+        }
+        
+      });
+
+      compile = compilePanel(jdata.item, items);
+      $( compile ).appendTo( ".left-window" );
+
     });
-  });
+  } else{
+    console.log('track id - ' + t);
+    socket.emit('queue track', {trackID : t});
+
+  }
+
+});
+
+
+$(document).on('click', '.clickable',function(){
+  console.log('clickable clicked!')
+  var effect = $(this).data('effect');
+  $(this).closest('.panel')[effect]();
 });
 
 

@@ -85,4 +85,18 @@ a.ui-slider-handle{ background-color: blue!important;}
     padding-right: 0px;
     padding-left: 0px;
 }
-ul.library{ list-style: none;}
+
+.panel-heading span
+{
+    margin-top: -26px;
+    font-size: 15px;
+    margin-right: -12px;
+}
+
+.clickable {
+    background: rgba(0, 0, 0, 0.15);
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}

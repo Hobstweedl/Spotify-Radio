@@ -76,6 +76,7 @@ app.get('/api/artists', function(req, res){
 });
 
 app.get('/api/artist/:artist', function(req, res){
+
 	return tracks.distinct('album',{artist : new RegExp([req.params.artist]) }, function(e, data){
 		
 		if(!e){
@@ -87,9 +88,8 @@ app.get('/api/artist/:artist', function(req, res){
 
 });
 
-app.get('/api/artists/:artist/album/:album/tracks', function(req, res){
-	console.log( req.params);
-	return tracks.find({album : new RegExp('Hello Nasty') }, function(e, data){
+app.get('/api/artists/:artist/album/:album', function(req, res){
+	return tracks.find({album : new RegExp([req.params.album]), artist : new RegExp([req.params.artist]) }, function(e, data){
 		
 		if(!e){
 			return res.json(data);
@@ -101,7 +101,7 @@ app.get('/api/artists/:artist/album/:album/tracks', function(req, res){
 });
 
 app.get('/api/track/:id', function(req, res){
-	console.log( req.params);
+
 	return tracks.findById(req.params.id, function(e, data){
 		
 		if(!e){
@@ -116,7 +116,7 @@ app.get('/api/track/:id', function(req, res){
 
 /*	Socket Connection and events */
 
-var ioEvents = require('./socket-events')(io, availableUsers);
+var ioEvents = require('./socket-events')(io, availableUsers, tracks);
 
 
 http.listen(3000, function(){

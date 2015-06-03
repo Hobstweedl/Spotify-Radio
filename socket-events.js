@@ -3,7 +3,7 @@ var mm = require('musicmetadata');
 var fs = require('fs');
 
 
-var tdwp = ['music/tdwp/escape.mp3', 'music/tdwp/anatomy.mp3', 'music/tdwp/outnumbered.mp3']
+var tdwp = []
 //	Arrays for holding lists of users
 var connectedClients = []; //	client connected * can probably be removed in favor of connectedUsers
 var connectedUsers = [];	//	List of connected users by their session id. User info gets stored in object
@@ -15,9 +15,9 @@ var songEndCount = 0;
 
 var metadata = {}; //	Current metadata for song playing
 var currentSong;	//	ID of the current song playing
-currentSong = tdwp.shift();
+currentSong = 'music/tdwp/escape.mp3';
 
-exports = module.exports = function(io, availableUsers){
+exports = module.exports = function(io, availableUsers, tracks){
   
 	io.on('connection', function(socket){
 		console.log('Client has connected');
@@ -82,6 +82,14 @@ exports = module.exports = function(io, availableUsers){
 	        }
 	    });
 
+	    socket.on('queue track', function(data){
+	        console.log(data);
+	        tracks.findById(data.trackID, function (err, found) {
+	          console.log(found);
+	          tdwp.push(found.location);
+	        });
+	    });
+
 	    //	Song has ended, load up the next song in the playlist
 	    socket.on('end', function(){
 	        songEndCount++;
@@ -89,7 +97,12 @@ exports = module.exports = function(io, availableUsers){
 	        if(songEndCount == connectedClients.length){
 	            console.log('all clients over, start new song');
 
-	            currentSong = tdwp.shift();
+	            if(tdwp.length > 0){
+	            	currentSong = tdwp.shift();	
+	            } else{
+	            	currentSong = 'music/tdwp/escape.mp3';
+	            }
+	            
 	            var file = fs.createReadStream(currentSong);
 	            var parser = mm( file, function (err, m) {
 	                if (err) throw err;
