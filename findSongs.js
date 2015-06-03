@@ -54,17 +54,26 @@ var walk = function (dir, done) {
                     var parser = mm( song, function (err, m) {
                         if (err) console.log('Error on : ' + file);
 
-                        var insert = new track({
-	                        title: m.title,
-	                        artist: m.artist[0],
-	                        album: m.album,
-	                        location: file
-                        });
-                         
-                        insert.save(function (err, data) {
-                        if (err) console.log(err);
-                        else console.log('Saved : ', data );
-                        });
+                        track.find(
+                            {title: m.title, album: m.album, artist : m.artist[0], location: file}, 
+                            function(error, data){
+                                if(data.length){
+                                    console.log(m.title + ' - already exists');
+                                } else{
+                                    var insert = new track({
+                                        title: m.title,
+                                        artist: m.artist[0],
+                                        album: m.album,
+                                        location: file
+                                    });
+                                     
+                                    insert.save(function (err, data) {
+                                    if (err) console.log(err);
+                                    else console.log('Saved : ', data );
+                                    });
+
+                                }   //  End else
+                        }); //  End track find
                     });
 
                     next();

@@ -123,17 +123,24 @@
       
 
       <div class="col-sm-6 left-window">
-        <div id="music-libary">
-          Hello world!
-        </div>
+        
       </div>
 
 
       <div class="col-sm-6 right-window">
+
+      <div class="row">
+         <div class="col-lg-12">
+          <div class="input-group input-group-lg">
+            <input type="text" class="form-control input-lg" id="m">
+            <span class="input-group-btn">
+              <button class="btn btn-default btn-lg" id="message" type="button">Search</button>
+            </span>
+          </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+      </div><!-- /.row -->
+
         <div  id="chatwindow">
-          <div class="form">
-            <input id="m" autocomplete="off" /><button type="button" class="btn btn-primary" id="message">Send</button>
-          </div>
           <ul id="messages"></ul>
         </div>
       </div>

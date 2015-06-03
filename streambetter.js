@@ -75,7 +75,7 @@ app.get('/api/artists', function(req, res){
 
 });
 
-app.get('/api/artists/:artist/albums', function(req, res){
+app.get('/api/artist/:artist', function(req, res){
 	return tracks.distinct('album',{artist : new RegExp([req.params.artist]) }, function(e, data){
 		
 		if(!e){

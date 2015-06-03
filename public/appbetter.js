@@ -42,6 +42,19 @@ $vol.slider( {
 
 */
 
+$.getJSON( "/api/artists", function( data ) {
+  var items = [];
+  $.each( data, function( key, val ) {
+    items.push( '<a class="list-group-item" data-type="artist" data-id="' + val + '">' + val + "</a>" );
+  });
+
+  $( "<div/>", {
+    "class": "list-group",
+    html: items.join( "" )
+  }).appendTo( ".left-window" );
+});
+
+
 $pp.click(function() {
   if( myAudio.volume > 0){
     lastVolume = myAudio.volume;
@@ -74,6 +87,27 @@ $('#signin').on('click', function(){
 $('button.seat-btn').on('click', function(){
   socket.emit('seat request');
 });
+
+$(document).on('click', '.list-group-item', function(){
+  var jdata = {};
+  var item = $(this).data('id');
+  var type = $(this).data('type');
+
+  switch(type) {
+      case 'artist':
+        jdata.url = '/api/artist/' + item;
+      break;
+  }
+  console.log(jdata);
+  $.getJSON( jdata.url, function( data ) {
+    var items = [];
+    $.each( data, function( key, val ) {
+      console.log(val);
+    });
+  });
+});
+
+
 
 /*
 

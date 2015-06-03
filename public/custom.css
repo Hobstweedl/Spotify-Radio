@@ -66,25 +66,23 @@ a.ui-slider-handle{ background-color: blue!important;}
 
 #chatwindow{background-color:#fff; height: 200px; overflow-y:scroll; overflow-x:hidden; }
 .form{ font-family: arial; color: #000;}
-.form input { border: 0; padding: 0px; width: 90%; margin:0; border: 1px solid #666; 
+.form input { border: 0; padding: 0px; width: 93%; margin:0; border: 1px solid #666; 
   padding: 4px; line-height: 16px; font-size: 18px; color: #000; }
-.form button { width: 9%; }
+.form button { width: 5%; }
 #messages {  list-style-type: none; margin: 0; padding: 0; color: #000; font-family: arial; }
 #messages li { padding: 5px 10px; border-bottom: 1px solid #ccc; }
 #messages li:nth-child(odd) { background: #eee; }
 
-.search-window {
-    display: table;
-}
+
 
 .left-window {
-    float: none;
-    display: table-cell;
-    border: 1px solid;
+        border-right: none;
 }
 
 .right-window {
-    float: none;
-    display: table-cell;
+    
     border: 1px solid;
+    padding-right: 0px;
+    padding-left: 0px;
 }
+ul.library{ list-style: none;}
