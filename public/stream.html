@@ -15,52 +15,14 @@
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 
+    <script src="https://fb.me/react-0.13.3.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
+
   </head>
 
 <body>
 
   <div class="container-fluid">
- <!--
-  <div class="row">
-
-    <div class="col-sm-3">
-      <div class="seat text-center">
-        <img src="bartman.png" alt="..." class="img-circle" width="100">
-        <div class="seat-btn" id="seat1">
-          <h2>Take A Seat</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-3">
-      <div class="seat text-center">
-        <img src="bartman.png" alt="..." class="img-circle" width="100">
-        <div class="seat-btn" id="seat2">
-          <h2>Take A Seat</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-3">
-      <div class="seat text-center">
-        <img src="bartman.png" alt="..." class="img-circle" width="100">
-        <div class="seat-btn" id="seat3">
-          <h2>Take A Seat</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-3">
-      <div class="seat text-center">
-        <img src="bartman.png" alt="..." class="img-circle" width="100">
-        <div class="seat-btn" id="seat4">
-          <h2>Take A Seat</h2>
-        </div>
-      </div>
-    </div>
-
-  </div>
-  -->
 
     <div class="row" style="margin-top: 30px;">
       <div class="col-sm-4 col-sm-offset-4">  
@@ -123,30 +85,8 @@
     <div class="row search-window">
       
 
-      <div class="col-sm-6 left-window">
-        <div class="panel panel-info" id='base-panel'>
-          <div class="panel-heading">
-              <h3 class="panel-title">Artists</h3>
-          </div>
-          <div class="panel-body">
-            <ul class="list-group" id="base"></ul>
-          </div>
-        </div>
-
-        <!--
-
-        <div class="panel panel-info">
-          <div class="panel-heading">
-              <h3 class="panel-title">Artists</h3>
-              <span class="pull-right clickable" data-effect="slideUp"><i class="fa fa-times"></i></span>
-          </div>
-          <div class="panel-body">
-              Panel content
-          </div>
-        </div>
-
-        -->
-
+      <div class="col-sm-6 left-window" id="music-library">
+        <div id="content"></div>
       </div>
 
 
@@ -252,10 +192,81 @@
 
 
 
+<script type="text/jsx">
 
 
+
+var Panel = React.createClass({
+
+  getInitialState: function() {
+    return {list : []};
+  },
+
+  getLibrary: function(){
+    $.ajax({
+      url: "/api/artists",
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({list: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error('Api Failure');
+      }.bind(this)
+    });
+  },
+
+  componentDidMount: function(){
+    this.getLibrary();
+    setInterval(this.loadCommentsFromServer, 2000);
+        
+  },
+
+  render: function() {
+    console.log(this.state);
+    return (
+              <div className="panel panel-info">
+                <div className="panel-heading">
+                    <h3 className="panel-title">My Title</h3>
+                </div>
+                <div className="panel-body">
+                  <Librarylist data = {this.state.list} />
+                </div>
+              </div>
+    );
+  }
+});
+
+var Librarylist = React.createClass({
+
+  render: function() {
+
+    var library = this.props.data.map(function (item) {
+      return (
+        <a className="list-group-item">
+          {item.title}
+        </a>
+      );
+    });
+    return (
+      <div className="list-group">
+        {library}
+      </div>
+    );
+  }
+});
+
+React.render(
+  <Panel />,
+  document.getElementById('content')
+);
+
+</script>
 
 <script src="appbetter.js"></script>
+<!--
 
+
+-->
 </body>
 </html>
