@@ -8,8 +8,8 @@ var $pp  = $('#playpause'),
 $vol = $('#volume');
 var lastVolume = 0;
 
-function compilePanel(title, items){
-  var htmlList = '<div class="panel panel-info">' +
+function compilePanel(title, items, id){
+  var htmlList = '<div class="panel panel-info" id="' + id + '">' +
           '<div class="panel-heading">' +
               '<h3 class="panel-title"> ' + title +' </h3>' +
               '<span class="pull-right clickable" data-effect="slideUp"><i class="fa fa-times"></i></span>' +
@@ -20,6 +20,7 @@ function compilePanel(title, items){
 
   return htmlList;
 }
+
 
 function getTime(t) {
   var m=~~(t/60), s=~~(t % 60);
@@ -85,7 +86,6 @@ $pp.click(function() {
 });
 
 $('#message').on('click', function(){
-  console.log( $('#m').val() );
   socket.emit('chat message', $('#m').val());
   $('#m').val('');
 });
@@ -111,12 +111,17 @@ $(document).on('click', '.list-group-item', function(){
         jdata.url = '/api/artist/' + artist;
         jdata.type = 'album'
         jdata.item = artist
+        jdata.div = 'album-panel'
+        $("#base-panel").hide();
       break;
 
       case 'album':
+      console.log('enter album');
         jdata.url = '/api/artists/' + artist + '/album/' + album;
         jdata.type = 'track'
         jdata.item = album
+        jdata.div = 'track-panel'
+        $("#album-panel").hide();
       break
 
       case 'track':
@@ -124,7 +129,7 @@ $(document).on('click', '.list-group-item', function(){
       break;
 
   }
-  $("#base-panel").hide();
+  
 
   if(trackSelected == false){
     var compile;
@@ -141,23 +146,27 @@ $(document).on('click', '.list-group-item', function(){
         
       });
 
-      compile = compilePanel(jdata.item, items);
+      compile = compilePanel(jdata.item, items, jdata.div);
       $( compile ).appendTo( ".left-window" );
 
     });
   } else{
-    console.log('track id - ' + t);
     socket.emit('queue track', {trackID : t});
-
   }
 
 });
 
 
 $(document).on('click', '.clickable',function(){
-  console.log('clickable clicked!')
   var effect = $(this).data('effect');
-  $(this).closest('.panel')[effect]();
+  var panel = $(this).closest('.panel')[effect]();
+  if(panel[0].id == 'album-panel'){
+    $("#base-panel").show();
+  }
+
+  if(panel[0].id == 'track-panel'){
+    $("#album-panel").show();
+  }
 });
 
 
