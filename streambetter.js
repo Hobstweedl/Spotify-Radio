@@ -63,6 +63,11 @@ app.get('/stream', function(req, res){
   res.sendfile('public/stream.html');
 });
 
+app.get('/react', function(req, res){
+  res.sendfile('public/react.html');
+});
+
+
 app.get('/api/artists', function(req, res){
 	return tracks.distinct('artist', function(e, data){
 		
