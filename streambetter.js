@@ -93,7 +93,7 @@ app.get('/api/artist/:artist', function(req, res){
 
 });
 
-app.get('/api/artists/:artist/album/:album', function(req, res){
+app.get('/api/artist/:artist/album/:album', function(req, res){
 	return tracks.find({album : new RegExp([req.params.album]), artist : new RegExp([req.params.artist]) }, function(e, data){
 		
 		if(!e){

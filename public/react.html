@@ -80,16 +80,17 @@
 var Panel = React.createClass({
 
   getInitialState: function() {
-    return {type: 'artist', list : []};
+    return {type: 'artist', list : [], api: "/api/artists" };
   },
 
-  getLibrary: function(){
+
+  getLibrary: function(type, api){
     $.ajax({
-      url: "/api/artists",
+      url: api,
       dataType: 'json',
       cache: false,
       success: function(data) {
-        this.setState({list: data, type: 'artist' });
+        this.setState({ list: data, type: type });
       }.bind(this),
       error: function(xhr, status, err) {
         console.error('Api Failure');
@@ -98,27 +99,56 @@ var Panel = React.createClass({
   },
 
   componentDidMount: function(){
-    this.getLibrary();        
+    this.getLibrary(this.state.type, this.state.api);        
+  },
+
+  handleClick: function (chain) {
+    var updatedState, api;
+    var artistState = null;
+    switch(chain.dataType){
+      case 'artist' :
+        updatedState = 'album';
+        api = '/api/artist/' + chain.name;
+        this.setState({artistState: chain.name});
+      break;
+
+      case 'album' : 
+      //  Switch state to song
+        updatedState = 'song';
+        api = '/api/artist/' + this.state.artistState + '/album/' + chain.name;
+        this.setState({albumState: chain.name });
+
+      break
+
+      case 'song' : 
+      //  Do nothing
+        updatedState = 'endofline';
+        api = 'endoftheline';
+      break;
+    }
+    this.getLibrary(updatedState, api)
+
   },
 
   render: function() {
     return (
-              <div className="panel panel-info">
-                <div className="panel-heading">
-                    <h3 className="panel-title">My Title</h3>
-                </div>
-                <div className="panel-body">
-                  <Librarylist data = {this.state.list} type={this.state.type} />
-                </div>
-              </div>
+        <div className="panel panel-info">
+          <div className="panel-heading">
+              <h3 className="panel-title">My Title</h3>
+          </div>
+          <div className="panel-body">
+            <Librarylist onClick={ this.handleClick } data = {this.state.list} type={this.state.type} />
+          </div>
+        </div>
     );
   }
 });
-//  http://stackoverflow.com/questions/28524751/reactjs-modify-parent-state-from-child-component
+
+
 
 var Librarylist = React.createClass({
-  handleClick: function(i) {
-    console.log('You clicked: ' + this.props.data[i]);
+  handleClick: function( item ) {
+    this.props.onClick(item);
   },
 
   render: function() {
@@ -127,19 +157,43 @@ var Librarylist = React.createClass({
     return (
       <div className="list-group">
         {this.props.data.map( function(item, i){
-          return (
-            <a className="list-group-item" key={i} data-type={type} onClick={this.handleClick.bind(this, i)}>
-              {item}
-            </a>
-          );
+
+          if( typeof item === 'object' ){
+            return (
+              <LibraryItem name= {item.title} location = {item.location} sid={item._id} onClick={this.handleClick} />
+            );
+          } else{
+            return (
+              <LibraryItem name= {item} dataType = {type} onClick={this.handleClick} />
+            );
+          }
+          
         }, this)}
       </div>
     );
   }
 });
 
+var LibraryItem = React.createClass({
+
+  handleClick: function(){
+    console.log(this.props);
+    this.props.onClick(this.props);
+
+  },
+
+  render: function(){
+    return (
+      <a className="list-group-item" onClick={ this.handleClick }>
+        {this.props.name}
+      </a>
+    )
+  }
+
+});
+
 React.render(
-  <Panel />,
+<Panel />,
   document.getElementById('content')
 );
 
