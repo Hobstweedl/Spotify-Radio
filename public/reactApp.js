@@ -1,71 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Spotify FM</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/cupertino/jquery-ui.css">
-    <link rel="stylesheet" href="custom.css">
-    <link href='http://fonts.googleapis.com/css?family=Poiret+One|Comfortaa:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" type="text/css">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-
-
-    <script src="https://fb.me/react-0.13.3.js"></script>
-    <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
-
-  </head>
-
-<body>
-
-  <div class="container-fluid">
-
-
-
-    
-
-    <!-- END SEATING ROW -->
-
-    <div class="row">
-      
-
-      <div class="col-sm-6">
-        <div id="music-library"></div>
-      </div>
-
-
-      <div class="col-sm-6">
-
-        <div id="chat"></div>
-      </div>
-      
-    </div>
-
-  </div><!-- END Wrapper -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script type="text/jsx">
-
-
+var socket = io('http://localhost:3000');
 
 var Panel = React.createClass({
-
   getInitialState: function() {
     return {type: 'artist', list : [], api: "/api/artists", buttonIsClickable: false };
   },
@@ -217,123 +152,57 @@ var BackButton = React.createClass({
   }
 });
 
-/************************************************************
-
-  Chat 
-
-*************************************************************/
-
-var userList = [];
-var messageList = [];
-
-var ChatWindow = React.createClass({
-  render: function(){
-
-    return(
-      <div className="row">
-        <div className="col-sm-8">
-          <MessageList />
-        </div>
-
-        <div className="col-sm-4">
-          <UserList />
-        </div>
-      </div>
-    )
-
-  }
-})
+/*  Everything for the chat */
 
 var UserList = React.createClass({
-
   render: function(){
+    var users = function(user){
+      return <li> { user } </li>
+    };
 
     return(
-      <div className="panel panel-default">
-        <div className="panel-heading">Online Users</div>
-        <div className="list-group"></div>
+      <div className="users">
+        <h3> Online Users </h3>
+        <ul> { this.props.users.map( users ) } </ul>
       </div>
     )
-
   }
-
-});
-
-var MessageList = React.createClass({
-
-  render: function(){
-
-    return(
-      <div className="panel panel-default">
-        <div className="panel-heading">Chat</div>
-          <ul className="list-group">
-            <Message />
-          </ul>
-
-          <MessageForm />
-      </div>
-    )
-
-  }
-
 });
 
 var Message = React.createClass({
 
   render: function(){
     return(
-      <li className="list-group-item">
-        <strong>Hobstweedl</strong> : Hello World
-      </li>
-    )
-  }
-
-});
-
-var MessageForm = React.createClass({
-
-  getInitialState: function() {
-    return { text: '' };
-  },
-
-  handleSubmit: function(event){
-    event.preventDefault();
-    var message = this.state.text;
-    console.log(message);
-  },
-
-  changeHandler : function(event){
-    this.setState({ text : event.target.value });
-  },
-
-  render: function(){
-    return(
-      <div className="panel-footer">
-        <div className="input-group">
-            <input type="text" className="form-control input-sm" 
-            onChange={this.changeHandler} placeholder="enter your message here..." />
-            <span className="input-group-btn">
-                <button className="btn btn-warning btn-sm" onClick={this.handleSubmit}>Send</button>
-            </span>
-        </div>
+      <div class="message">
+        <strong> { this.props.user } </strong> : 
+        { this.props.text }
       </div>
     )
   }
+});
+
+var MessageList = React.createClass({
+
+  render: function(){
+    var showMessage = function(m){
+      return <Message user = { m.user } text = { m.text } />
+    }
+
+    return(
+      <div class="messages">
+        <h2> Conversation : </h2>
+        { this.props.messages.map(showMessage) }
+      <div>
+    )
+  }
 
 });
 
+
+
+/********************************************************/
+
 React.render(
 <Panel />,
-  document.getElementById('music-library')
+  document.getElementById('content')
 );
-
-React.render(
-<ChatWindow />,
-  document.getElementById('chat')
-);
-
-
-</script>
-
-</body>
-</html>
