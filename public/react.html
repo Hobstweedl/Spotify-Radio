@@ -227,12 +227,27 @@ var userList = [];
 var messageList = [];
 
 var ChatWindow = React.createClass({
+
+  getInitialState: function(){
+    return {user: 'hobstweedl', messages:messageList};
+  },
+
+  handleMessage : function(msg){
+    console.log(msg);
+    messageList.push(msg.msg);
+    this.setState({ messages : messageList})
+  },
+
   render: function(){
 
     return(
       <div className="row">
         <div className="col-sm-8">
-          <MessageList />
+          <div className="panel panel-default">
+            <div className="panel-heading">Chat</div>
+            <MessageList messages={this.state.messages} />
+            <MessageForm onFormSubmit={this.handleMessage} user = {this.state.user} />
+          </div>
         </div>
 
         <div className="col-sm-4">
@@ -243,6 +258,24 @@ var ChatWindow = React.createClass({
 
   }
 })
+
+var MessageList = React.createClass({
+
+  render: function(){
+
+    return(
+      <ul className="list-group">
+        {
+          this.props.messages.map(function(msg){
+            return <Message message = {msg} />
+          })
+        }
+      </ul>
+    )
+
+  }
+
+});
 
 var UserList = React.createClass({
 
@@ -259,31 +292,14 @@ var UserList = React.createClass({
 
 });
 
-var MessageList = React.createClass({
 
-  render: function(){
-
-    return(
-      <div className="panel panel-default">
-        <div className="panel-heading">Chat</div>
-          <ul className="list-group">
-            <Message />
-          </ul>
-
-          <MessageForm />
-      </div>
-    )
-
-  }
-
-});
 
 var Message = React.createClass({
 
   render: function(){
     return(
       <li className="list-group-item">
-        <strong>Hobstweedl</strong> : Hello World
+        <strong>Hobstweedl</strong> : {this.props.message}
       </li>
     )
   }
@@ -298,8 +314,19 @@ var MessageForm = React.createClass({
 
   handleSubmit: function(event){
     event.preventDefault();
-    var message = this.state.text;
-    console.log(message);
+
+    var message = {
+      msg : this.state.text,
+      user : this.props.user
+    }
+    this.props.onFormSubmit(message);  
+    this.setState({ text: '' });
+  },
+
+  handleEnter: function(event){
+    if( event.which === 13){
+      this.handleSubmit(event);
+    }
   },
 
   changeHandler : function(event){
@@ -310,8 +337,8 @@ var MessageForm = React.createClass({
     return(
       <div className="panel-footer">
         <div className="input-group">
-            <input type="text" className="form-control input-sm" 
-            onChange={this.changeHandler} placeholder="enter your message here..." />
+            <input type="text" className="form-control input-sm" value={this.state.text}
+            onChange={this.changeHandler} placeholder="enter your message here..." onKeyPress={this.handleEnter} />
             <span className="input-group-btn">
                 <button className="btn btn-warning btn-sm" onClick={this.handleSubmit}>Send</button>
             </span>
