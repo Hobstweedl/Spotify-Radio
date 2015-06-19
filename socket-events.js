@@ -129,8 +129,9 @@ exports = module.exports = function(io, availableUsers, tracks){
 	        console.log('seated - ' + seatedUsers);
 	    });
 
-	    socket.on('chat message', function(msg){
-	        io.emit('chat message', {msg: msg, username: socket.user });
+	    socket.on('chat message', function(data){
+	    	console.log(data);
+	        io.emit('chat message', {data: data});
 	    });
 
 	    socket.on('disconnect', function(){

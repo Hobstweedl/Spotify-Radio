@@ -13,7 +13,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
-
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
     <script src="https://fb.me/react-0.13.3.js"></script>
     <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
 
@@ -62,7 +62,7 @@
 
 <script type="text/jsx">
 
-
+var socket = io('http://localhost:3000');
 
 var Panel = React.createClass({
 
@@ -184,7 +184,6 @@ var Librarylist = React.createClass({
 var LibraryItem = React.createClass({
 
   handleClick: function(){
-    console.log(this.props);
     this.props.onClick(this.props);
 
   },
@@ -229,13 +228,18 @@ var messageList = [];
 var ChatWindow = React.createClass({
 
   getInitialState: function(){
+
+    socket.on('chat message', this.AddMessage);
     return {user: 'hobstweedl', messages:messageList};
   },
 
+  AddMessage: function(data){
+    messageList.push(data.data);
+    this.setState();
+  },
+
   handleMessage : function(msg){
-    console.log(msg);
-    messageList.push(msg.msg);
-    this.setState({ messages : messageList})
+    socket.emit('chat message', msg);
   },
 
   render: function(){
@@ -257,24 +261,6 @@ var ChatWindow = React.createClass({
     )
 
   }
-})
-
-var MessageList = React.createClass({
-
-  render: function(){
-
-    return(
-      <ul className="list-group">
-        {
-          this.props.messages.map(function(msg){
-            return <Message message = {msg} />
-          })
-        }
-      </ul>
-    )
-
-  }
-
 });
 
 var UserList = React.createClass({
@@ -287,19 +273,35 @@ var UserList = React.createClass({
         <div className="list-group"></div>
       </div>
     )
-
   }
 
 });
 
 
+var MessageList = React.createClass({
+
+  render: function(){
+
+    return(
+      <ul className="list-group">
+        {
+          this.props.messages.map(function(msg){
+            console.log(msg)
+            return <Message message = {msg.msg} user = {msg.user} />
+          })
+        }
+      </ul>
+    )
+  }
+
+});
 
 var Message = React.createClass({
 
   render: function(){
     return(
       <li className="list-group-item">
-        <strong>Hobstweedl</strong> : {this.props.message}
+        <strong>{this.props.user}</strong> : {this.props.message}
       </li>
     )
   }
@@ -337,7 +339,7 @@ var MessageForm = React.createClass({
     return(
       <div className="panel-footer">
         <div className="input-group">
-            <input type="text" className="form-control input-sm" value={this.state.text}
+            <input type="text" className="form-control input-sm" value={ this.state.text }
             onChange={this.changeHandler} placeholder="enter your message here..." onKeyPress={this.handleEnter} />
             <span className="input-group-btn">
                 <button className="btn btn-warning btn-sm" onClick={this.handleSubmit}>Send</button>
