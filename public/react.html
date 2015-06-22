@@ -23,10 +23,7 @@
 
   <div class="container-fluid">
 
-
-
     
-
     <!-- END SEATING ROW -->
 
     <div class="row">
@@ -44,13 +41,84 @@
       
     </div>
 
+    <br>
+    
+    <div class="row">
+      <div class="col-sm-6">
+        <div id="seats"></div>
+      </div>
+    </div>
+    
+
   </div><!-- END Wrapper -->
 
 
 
 
+<!-- Modal -->
+ <div class="modal fade bs-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-sm">
+     <div class="modal-content">
+         
+       <div class="modal-body">
+
+         
+        <div class="tab-pane fade active in">
+             <div class="form-horizontal">
+             <fieldset>
+             <!-- Sign In Form -->
+             <!-- Text input-->
+             <div class="control-group">
+               <label class="control-label" for="userid">Alias:</label>
+               <div class="controls">
+                 <input required="" id="userid" name="userid" type="text" class="form-control"  value="hobstweedl" class="input-medium" required="">
+               </div>
+             </div>
+
+             <!-- Password input-->
+             <div class="control-group">
+               <label class="control-label" for="passwordinput">Password:</label>
+               <div class="controls">
+                 <input required="" value="304421jr" id="passwordinput" name="passwordinput" class="form-control" type="password" placeholder="********" class="input-medium">
+               </div>
+             </div>
+
+            
+
+             <!-- Button -->
+             <div class="control-group">
+               <label class="control-label" for="signin"></label>
+               <div class="controls">
+                 <button id="signin" name="signin" class="btn btn-success" type="button" style="width: auto;">Sign In</button>
+               </div>
+             </div>
+             </fieldset>
+             </div>
+        </div>      
+       </div>
+      
+     </div>
+   </div>
+ </div>
 
 
+
+
+<!-- Modal -->
+<div class="modal fade bs-modal-sm" id="nonomodal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+ <div class="modal-dialog modal-sm">
+   <div class="modal-content">
+       
+     <div class="modal-body">
+
+       
+       You already have this open in another tab. Close this one and go find the other!
+
+     </div>
+    
+   </div>
+ </div>
+</div>
 
 
 
@@ -72,7 +140,7 @@ var Panel = React.createClass({
 
 
   getLibrary: function(type, api){
-    console.log(type + ' ' + api)
+
     $.ajax({
       url: api,
       dataType: 'json',
@@ -133,7 +201,7 @@ var Panel = React.createClass({
 
   render: function() {
     return (
-      <div class="library-panel">
+      <div className="library-panel">
         <div className="panel panel-info">
           <div className="panel-heading">
               <h3 className="panel-title">My Title</h3>
@@ -230,12 +298,17 @@ var ChatWindow = React.createClass({
   getInitialState: function(){
 
     socket.on('chat message', this.AddMessage);
-    return {user: 'hobstweedl', messages:messageList};
+    socket.on('user joined', this.AddUser);
+    return { messages:messageList };
   },
 
   AddMessage: function(data){
     messageList.push(data.data);
     this.setState();
+  },
+
+  AddUser: function(data){
+    this.setState({ user: data.user, users: data.users});
   },
 
   handleMessage : function(msg){
@@ -255,7 +328,7 @@ var ChatWindow = React.createClass({
         </div>
 
         <div className="col-sm-4">
-          <UserList />
+          <UserList users={this.state.users} />
         </div>
       </div>
     )
@@ -266,11 +339,23 @@ var ChatWindow = React.createClass({
 var UserList = React.createClass({
 
   render: function(){
+    var users = [];
+    if(this.props.users){
+      users = this.props.users
+      console.log(users);
+    }
+    
 
     return(
       <div className="panel panel-default">
         <div className="panel-heading">Online Users</div>
-        <div className="list-group"></div>
+        <div className="list-group">
+          {
+            users.map(function(person){
+              return <li className="list-group-item">{person.user}</li>
+            })
+          }
+        </div>
       </div>
     )
   }
@@ -286,7 +371,6 @@ var MessageList = React.createClass({
       <ul className="list-group">
         {
           this.props.messages.map(function(msg){
-            console.log(msg)
             return <Message message = {msg.msg} user = {msg.user} />
           })
         }
@@ -311,6 +395,7 @@ var Message = React.createClass({
 var MessageForm = React.createClass({
 
   getInitialState: function() {
+
     return { text: '' };
   },
 
@@ -351,6 +436,79 @@ var MessageForm = React.createClass({
 
 });
 
+/**************************************************************
+
+Join Windows
+
+**************************************************************/
+
+var SeatedWindow = React.createClass({
+
+  getInitialState: function() {
+    socket.emit('get users');
+    socket.on('get users', this.UserList);
+
+    return { users: [
+      {id: 1, name: 'hobstweedl', seated: true}, 
+      {id: 2, name: 'maxdadi', seated: true}, 
+      {id: 3, seated: false},
+      {id: 4, name: 'Samwise', seated: false},
+      {id: 5, seated: false}
+    ] };
+  },
+
+  UserList: function(data){
+    //console.log(data);
+  },
+
+  handleClick: function(item){
+    //console.log(item);
+  },
+
+  render: function(){
+
+    return(
+      <div className="panel panel-warning">
+        <div className="panel-heading">
+          <h3 className="panel-title">Seats</h3>
+        </div>
+        <div className="list-group">
+          {this.state.users.map( function(data){
+            return <SeatedUser onClick={this.handleClick} name={data.name} key={data.id} seatkey={data.id} seated={data.seated} />
+          }, this)}
+        </div>
+      </div>
+    )
+  }
+
+});
+
+var SeatedUser = React.createClass({
+
+  handleClick: function(){
+    this.props.onClick(this.props);
+  },
+
+  render: function(){
+    if( this.props.name ){
+      return(
+        <li className="list-group-item">
+          <strong>{this.props.name}</strong>
+        </li>
+      )
+    } else{
+      return(
+        <li className="list-group-item">
+          <button type="button" className="btn btn-warning" onClick={this.handleClick} key={this.props.seatkey} >Take A Seat</button>
+        </li>
+      )
+    }
+    
+  }
+
+});
+
+
 React.render(
 <Panel />,
   document.getElementById('music-library')
@@ -361,8 +519,44 @@ React.render(
   document.getElementById('chat')
 );
 
+React.render(
+  <SeatedWindow />,
+  document.getElementById('seats')
+);
+
+/****************************************************
+
+Authentication Socket = JQuery
+
+*****************************************************/
+
+socket.on('connect', function(){
+  socket.emit('authentication');
+});
+
+socket.on('not authenticated', function(){
+  $('#myModal').modal({ keyboad: false, backdrop: 'static' });
+});
+
+socket.on('authenticated', function(){
+
+  socket.emit('connection'); // need to launch that when credentials have been accepted
+  $('#myModal').modal('hide');
+
+});
+
+socket.on('too many connections', function(){
+  console.log('respond with modal and explanation');
+  $('#nonomodal').modal({ keyboad: false, backdrop: 'static' });
+});
+
+$('#signin').on('click', function(){
+  socket.emit('authentication', {username : $("#userid").val(), password: $('#passwordinput').val() } );
+});
+
 
 </script>
 
+<script src="modal.js"></script>
 </body>
 </html>

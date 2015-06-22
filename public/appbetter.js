@@ -64,20 +64,9 @@ $pp.click(function() {
   
 });
 
-$('#message').on('click', function(){
-  socket.emit('chat message', $('#m').val());
-  $('#m').val('');
-});
-
 $('#signin').on('click', function(){
   socket.emit('authentication', {username : $("#userid").val(), password: $('#passwordinput').val() } );
 });
-
-$('button.seat-btn').on('click', function(){
-  socket.emit('seat request');
-});
-
-
 
 
 /*
@@ -139,10 +128,6 @@ socket.on('song', function (data) {
 
 });
 
-
-socket.on('chat message', function(msg){
-  $('#messages').append($('<li>').text(msg.username + ': ' + msg.msg));
-});
 
 socket.on('authenticated', function(){
 

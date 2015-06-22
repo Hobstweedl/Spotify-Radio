@@ -51,17 +51,26 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    	}
 
 	    	if(data){
-	    		var yeah = helper.authenticate(availableUsers, data.username, data.password);
-	    		if(yeah !== false ){
-	    			socket.user = yeah;
-	    			connectedUsers.push({id: socket.id, session: socket.request.sessionID, user: yeah } );
+	    		var username = helper.authenticate(availableUsers, data.username, data.password);
+	    		if(username !== false ){
+	    			socket.user = username;
+	    			connectedUsers.push({id: socket.id, session: socket.request.sessionID, user: username } );
 	    			connectedClients.push(socket.id);
-	    			socket.emit('authenticated')
+	    			socket.emit('authenticated', {user: username});
+	    			socket.emit('user joined', {users: connectedUsers, user: username});
 	    		} else{
 	    			console.log('failed authentication');
 	    			socket.emit('not authenticated');
 	    		}
 	    	}
+	    });
+
+	    socket.on('user list', function(){
+	    	socket.emit('user list', {users: connectedUsers })
+	    });
+
+	    socket.on('get users', function(){
+	    	socket.emit('get users', {users: connectedUsers });
 	    });
 
 
