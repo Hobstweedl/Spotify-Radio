@@ -7,7 +7,13 @@ var tdwp = []
 //	Arrays for holding lists of users
 var connectedClients = []; //	client connected * can probably be removed in favor of connectedUsers
 var connectedUsers = [];	//	List of connected users by their session id. User info gets stored in object
-var seatedUsers = []; //	Usernames of users currently seated. Only they can push songs to the queue
+var seatedUsers = {
+	1 : {},
+	2 : {},
+	3 : {},
+	4 : {},
+	5 : {}
+}; //	Usernames of users currently seated. Only they can push songs to the queue
 
 var seektimes = []; //	List of all seek times returned upon request
 var seekReturnCount = 0;
@@ -67,10 +73,6 @@ exports = module.exports = function(io, availableUsers, tracks){
 
 	    socket.on('user list', function(){
 	    	socket.emit('user list', {users: connectedUsers })
-	    });
-
-	    socket.on('get users', function(){
-	    	socket.emit('get users', {users: connectedUsers });
 	    });
 
 
@@ -153,6 +155,15 @@ exports = module.exports = function(io, availableUsers, tracks){
 	        var j = connectedClients.indexOf(socket.id);
 	        connectedClients.splice(j, 1);
 	    });
+
+	    socket.on('get seated users', function(){
+	    	socket.emit('get seated users', {users: seatedUsers });
+	    });
+
+
+
+
+
 	});
 
 

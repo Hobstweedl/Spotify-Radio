@@ -342,7 +342,6 @@ var UserList = React.createClass({
     var users = [];
     if(this.props.users){
       users = this.props.users
-      console.log(users);
     }
     
 
@@ -445,8 +444,8 @@ Join Windows
 var SeatedWindow = React.createClass({
 
   getInitialState: function() {
-    socket.emit('get users');
-    socket.on('get users', this.UserList);
+    socket.emit('get seated users');
+    socket.on('get seated users', this.SeatedUsers);
 
     return { users: [
       {id: 1, name: 'hobstweedl', seated: true}, 
@@ -457,8 +456,8 @@ var SeatedWindow = React.createClass({
     ] };
   },
 
-  UserList: function(data){
-    //console.log(data);
+  SeatedUsers: function(data){
+    console.log(data);
   },
 
   handleClick: function(item){
