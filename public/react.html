@@ -21,6 +21,8 @@
 
 <body>
 
+<!---->
+
   <div class="container-fluid">
 
     
@@ -447,24 +449,26 @@ var SeatedWindow = React.createClass({
     socket.emit('get seated users');
     socket.on('get seated users', this.SeatedUsers);
 
-    return { users: [
-      {id: 1, name: 'hobstweedl', seated: true}, 
-      {id: 2, name: 'maxdadi', seated: true}, 
-      {id: 3, seated: false},
-      {id: 4, name: 'Samwise', seated: false},
-      {id: 5, seated: false}
-    ] };
+    return { users: {} };
   },
 
   SeatedUsers: function(data){
-    console.log(data);
+    this.setState({ users: data });
   },
 
   handleClick: function(item){
-    //console.log(item);
+    socket.emit('seat request', item.seatkey );
   },
 
   render: function(){
+    var listOfUsers = this.state.users;
+    var seats = [];
+    for( var u in listOfUsers){
+      seats.push( 
+        <SeatedUser onClick={this.handleClick} name={listOfUsers[u].name} 
+      key={listOfUsers[u].id} seatkey={u}  />
+      )
+    }
 
     return(
       <div className="panel panel-warning">
@@ -472,9 +476,7 @@ var SeatedWindow = React.createClass({
           <h3 className="panel-title">Seats</h3>
         </div>
         <div className="list-group">
-          {this.state.users.map( function(data){
-            return <SeatedUser onClick={this.handleClick} name={data.name} key={data.id} seatkey={data.id} seated={data.seated} />
-          }, this)}
+          {seats}
         </div>
       </div>
     )

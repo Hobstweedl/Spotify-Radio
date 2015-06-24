@@ -7,6 +7,7 @@ var tdwp = []
 //	Arrays for holding lists of users
 var connectedClients = []; //	client connected * can probably be removed in favor of connectedUsers
 var connectedUsers = [];	//	List of connected users by their session id. User info gets stored in object
+
 var seatedUsers = {
 	1 : {},
 	2 : {},
@@ -130,18 +131,18 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    
 	    //	When a user wants to request a seat. Must check that it is a unique user
 	    //	ie same user with multiple tabs open cant be able to occupy seats
-	    socket.on('seat request', function(){
+	    socket.on('seat request', function(seat){
 
 	        var s = helper.findUser(seatedUsers, socket.user);
 	        if(s == false){
-	             seatedUsers.push(socket.user);
-	             socket.seated = true;
+	        	seatedUsers[seat] = {name : socket.user}
+	        	socket.emit('get seated users', seatedUsers );
 	        }
-	        console.log('seated - ' + seatedUsers);
+	        console.log('seated');
+	        console.log(seatedUsers);
 	    });
 
 	    socket.on('chat message', function(data){
-	    	console.log(data);
 	        io.emit('chat message', {data: data});
 	    });
 
@@ -157,7 +158,7 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    });
 
 	    socket.on('get seated users', function(){
-	    	socket.emit('get seated users', {users: seatedUsers });
+	    	socket.emit('get seated users', seatedUsers );
 	    });
 
 
