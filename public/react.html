@@ -112,7 +112,6 @@
    <div class="modal-content">
        
      <div class="modal-body">
-
        
        You already have this open in another tab. Close this one and go find the other!
 
@@ -195,6 +194,7 @@ var Panel = React.createClass({
 
     if(updatedState == 'endofline'){
       console.log('We need to play the song now')
+      console.log(chain)
     } else{
       this.getLibrary(updatedState, api);
     }
@@ -457,7 +457,13 @@ var SeatedWindow = React.createClass({
   },
 
   handleClick: function(item){
-    socket.emit('seat request', item.seatkey );
+
+    if( item.action == 'leave'){
+      socket.emit('leave seat');
+    } else{
+      socket.emit('seat request', item.seatkey );
+    }
+    
   },
 
   render: function(){
@@ -490,11 +496,18 @@ var SeatedUser = React.createClass({
     this.props.onClick(this.props);
   },
 
+  handleLeave: function(){
+    this.props.onClick({action: 'leave'});
+  },
+
   render: function(){
     if( this.props.name ){
       return(
         <li className="list-group-item">
-          <strong>{this.props.name}</strong>
+          <strong>{this.props.name}</strong> - 
+          <button type="button" className="btn btn-error" onClick={this.handleLeave} 
+          key={this.props.seatkey} todo='leave' >Leave Seat</button>
+
         </li>
       )
     } else{

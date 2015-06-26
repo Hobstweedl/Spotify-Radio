@@ -29,16 +29,27 @@ module.exports = {
 
   findUser: function (arr, username) {
     
-    var l = arr.length;
     var found = false;
 
-    for( var i = 0; i < l; i++){
-        if(arr[i] == username){
-            found = true;
+    for( var i in arr){
+        if(arr[i].name == username){
+          found = true;
         }
     }
     return found;
 
+  },
+
+  removeSeat: function(arr, username){
+    for( var i in arr){
+        if(arr[i].name == username){
+          arr[i] = {};
+        }
+    }
+
+    console.log(arr);
+
+    return arr;
   },
 
   checkForSession: function (session, arr) {
@@ -54,3 +65,4 @@ module.exports = {
   }
 
 };
+//tom sawyer distant early warning wreckers closer to the heart subdivisions

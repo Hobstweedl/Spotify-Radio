@@ -138,8 +138,11 @@ exports = module.exports = function(io, availableUsers, tracks){
 	        	seatedUsers[seat] = {name : socket.user}
 	        	socket.emit('get seated users', seatedUsers );
 	        }
-	        console.log('seated');
-	        console.log(seatedUsers);
+	    });
+
+	    socket.on('leave seat', function(seat){
+	    	seatedUsers = helper.removeSeat(seatedUsers, socket.user);
+	    	socket.emit('get seated users', seatedUsers );
 	    });
 
 	    socket.on('chat message', function(data){
@@ -155,6 +158,10 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    	}
 	        var j = connectedClients.indexOf(socket.id);
 	        connectedClients.splice(j, 1);
+
+	        seatedUsers = helper.removeSeat(seatedUsers, socket.user);
+	        console.log('---- Seated Users ----');
+	        console.log(seatedUsers + '\n');
 	    });
 
 	    socket.on('get seated users', function(){
