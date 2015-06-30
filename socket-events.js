@@ -2,6 +2,19 @@ var helper = require('./functions');
 var mm = require('musicmetadata');
 var fs = require('fs');
 
+/****************************************************
+
+Seated Users, Connected Users
+need to store seat somewhere. Thinking right in the user socket 
+after confirming them in seated Users.
+
+Might even be able to just completely remove seated users and add a flag in the socket
+
+*cant. need seated users to generate frontend
+
+
+****************************************************/
+
 
 var tdwp = []
 //	Arrays for holding lists of users
@@ -95,8 +108,8 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    });
 
 	    socket.on('queue track', function(data){
-	        console.log(data);
-	        tracks.findById(data.trackID, function (err, found) {
+	        console.log(connectedUsers);
+	        tracks.findById(data, function (err, found) {
 	          console.log(found);
 	          tdwp.push(found.location);
 	        });
@@ -136,6 +149,7 @@ exports = module.exports = function(io, availableUsers, tracks){
 	        var s = helper.findUser(seatedUsers, socket.user);
 	        if(s == false){
 	        	seatedUsers[seat] = {name : socket.user}
+	        	helper.finderFunction(connectedUsers, socket.id, seat);
 	        	socket.emit('get seated users', seatedUsers );
 	        }
 	    });
@@ -150,6 +164,7 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    });
 
 	    socket.on('disconnect', function(){
+	    	console.log('Disconnecting');
 	    	for(var i = 0; i< connectedUsers.length; i++){
 
 	    		if(connectedUsers[i].user == socket.user ){
@@ -158,10 +173,8 @@ exports = module.exports = function(io, availableUsers, tracks){
 	    	}
 	        var j = connectedClients.indexOf(socket.id);
 	        connectedClients.splice(j, 1);
-
 	        seatedUsers = helper.removeSeat(seatedUsers, socket.user);
-	        console.log('---- Seated Users ----');
-	        console.log(seatedUsers + '\n');
+
 	    });
 
 	    socket.on('get seated users', function(){

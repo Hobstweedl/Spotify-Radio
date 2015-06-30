@@ -195,6 +195,7 @@ var Panel = React.createClass({
     if(updatedState == 'endofline'){
       console.log('We need to play the song now')
       console.log(chain)
+      socket.emit('queue track', chain.sid);
     } else{
       this.getLibrary(updatedState, api);
     }

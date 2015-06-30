@@ -40,15 +40,21 @@ module.exports = {
 
   },
 
+  finderFunction: function(arr, socket, seat){
+    for( var i in arr){
+        if(arr[i].id == socket){
+          return arr[i].seat = seat;
+        }
+    }
+  },
+
   removeSeat: function(arr, username){
     for( var i in arr){
         if(arr[i].name == username){
           arr[i] = {};
         }
     }
-
-    console.log(arr);
-
+    
     return arr;
   },
 
